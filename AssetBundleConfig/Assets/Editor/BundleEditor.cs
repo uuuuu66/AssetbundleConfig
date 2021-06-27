@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System.IO;
 
 public class BundleEditor
 {
+    public static string m_BundleTargetPath = Application.streamingAssetsPath;
     public static string AB_CONFIG_PATH = "Assets/Editor/ABConfig.asset";
 
     //key AB包名，value 路径，所有文件夹ab包dic
@@ -77,6 +79,16 @@ public class BundleEditor
             SetABName(name, m_allPrefabDir[name]);
         }
 
+        BuildAssetBundle();
+
+        string[] oldABNames = AssetDatabase.GetAllAssetBundleNames();
+        for (int i = 0; i < oldABNames.Length; i++)
+        {
+            AssetDatabase.RemoveAssetBundleName(oldABNames[i], true);
+            EditorUtility.DisplayProgressBar("删除AB包名", "名字：" + oldABNames[i], i * 1.0f / oldABNames.Length);
+        }
+
+        AssetDatabase.Refresh();
         EditorUtility.ClearProgressBar();
 
         
@@ -102,6 +114,92 @@ public class BundleEditor
         {
             SetABName(name, paths[i]);
         }
+    }
+
+    static void BuildAssetBundle()
+    {
+        string[] allBundles = AssetDatabase.GetAllAssetBundleNames();
+        //K路径和v包名
+        Dictionary<string, string> resPathDic = new Dictionary<string, string>();
+        for (int i = 0; i < allBundles.Length; i++)
+        {
+            string[] allBundlePath = AssetDatabase.GetAssetPathsFromAssetBundle(allBundles[i]);
+            for (int j = 0; j < allBundlePath.Length; j++)
+            {
+                if (allBundlePath[j].EndsWith(".cs"))
+                {
+                    continue;
+                }
+                resPathDic.Add(allBundlePath[j], allBundles[i]);
+            }
+        }
+
+        DeleteAB();
+        //生成自己的配置表
+        WriteData(resPathDic);
+
+        BuildPipeline.BuildAssetBundles(m_BundleTargetPath, BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
+    }
+
+    /// <summary>
+    /// 写配置
+    /// </summary>
+    /// <param name="resPathDic"></param>
+    static void WriteData(Dictionary<string,string> resPathDic)
+    {
+        AssetBunldeConfig config = new AssetBunldeConfig();
+        config.ABList = new List<ABBase>();
+        foreach (string path in resPathDic.Keys)
+        {
+
+        }
+
+        //写入XML
+
+        //写入二进制
+    }
+
+    /// <summary>
+    /// 删除这次打包流程中没有的AB包（以前打的包现在弃用了
+    /// </summary>
+    static void DeleteAB()
+    {
+        string[] allBundlesName = AssetDatabase.GetAllAssetBundleNames();
+        DirectoryInfo direction = new DirectoryInfo(m_BundleTargetPath);
+        FileInfo[] files = direction.GetFiles("*", SearchOption.AllDirectories);
+        for (int i = 0; i < files.Length; i++)
+        {
+            if (ConatinABName(files[i].Name, allBundlesName) || files[i].Name.EndsWith(".meta"))
+            {
+                continue;
+            }
+            else
+            {
+                Debug.Log("此AB包已经被删或者改名了：" + files[i].Name);
+                if (File.Exists(files[i].FullName))
+                {
+                    File.Delete(files[i].FullName);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 遍历文件夹里的文件名与设置的所有AB包进行检查判断
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="strs"></param>
+    /// <returns></returns>
+    static bool ConatinABName(string name, string[] strs)
+    {
+        for (int i = 0; i < strs.Length; i++)
+        {
+            if (name == strs[i])
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 
