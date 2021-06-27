@@ -1,3 +1,4 @@
 # maven ignore
 AssetBundleConfig/Library/
 AssetBundleConfig/Temp/
+AssetBundleConfig/.vs/
