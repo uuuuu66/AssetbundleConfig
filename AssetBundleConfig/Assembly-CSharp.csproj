@@ -60,6 +60,7 @@
      <Compile Include="Assets\Scripts\CRC32.cs" />
      <None Include="Assets\GameData\Shaders\Xray.shader" />
      <None Include="Assets\GameData\Shaders\Water.shader" />
+     <None Include="Assets\AssetbundleConfig.xml" />
      <None Include="Assets\GameData\Shaders\Skybox.shader" />
      <None Include="Assets\GameData\Modle\benghuai\cloud.shader" />
      <None Include="Assets\GameData\Modle\benghuai\benghuai.shader" />

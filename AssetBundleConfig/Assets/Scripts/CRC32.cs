@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 
-class CRC32
+public class CRC32
 {
     static UInt32[] crcTable =
     {

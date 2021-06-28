@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<AssetBunldeConfig xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ABList Path="Assets/GameData/Modle/benghuai/Attack.FBX" Crc="1748301669" ABName="attack" AssetName="Attack.FBX" />
+  <ABList Path="Assets/GameData/Modle/benghuai/Avatar_Kiana_C1_Texture_Face_Color_Common.png" Crc="2388404036" ABName="attack" AssetName="Avatar_Kiana_C1_Texture_Face_Color_Common.png" />
+  <ABList Path="Assets/GameData/Modle/benghuai/Avatar_Kiana_C2_Texture_Body_Color_RGB2048.png" Crc="2182320417" ABName="attack" AssetName="Avatar_Kiana_C2_Texture_Body_Color_RGB2048.png" />
+  <ABList Path="Assets/GameData/Modle/benghuai/Avatar_Kiana_C2_Texture_Hair_Color_Common.png" Crc="2960809432" ABName="attack" AssetName="Avatar_Kiana_C2_Texture_Hair_Color_Common.png" />
+  <ABList Path="Assets/GameData/Modle/benghuai/benghuai.shader" Crc="1857913793" ABName="attack" AssetName="benghuai.shader" />
+  <ABList Path="Assets/GameData/Modle/benghuai/ID_362.bmp" Crc="1610114254" ABName="attack" AssetName="ID_362.bmp" />
+  <ABList Path="Assets/GameData/Modle/benghuai/ID_368.bmp" Crc="2349575378" ABName="attack" AssetName="ID_368.bmp" />
+  <ABList Path="Assets/GameData/Modle/benghuai/ID_370.bmp" Crc="3603605164" ABName="attack" AssetName="ID_370.bmp" />
+  <ABList Path="Assets/GameData/Modle/benghuai/Materials/Avatar_Kiana_C1_Texture_Face_Color_Common.mat" Crc="2180688443" ABName="attack" AssetName="Avatar_Kiana_C1_Texture_Face_Color_Common.mat" />
+  <ABList Path="Assets/GameData/Modle/benghuai/Materials/Avatar_Kiana_C2_Texture_Body_Color_RGB2048.mat" Crc="853779896" ABName="attack" AssetName="Avatar_Kiana_C2_Texture_Body_Color_RGB2048.mat" />
+  <ABList Path="Assets/GameData/Modle/benghuai/Materials/Avatar_Kiana_C2_Texture_Hair_Color_Common.mat" Crc="3218919591" ABName="attack" AssetName="Avatar_Kiana_C2_Texture_Hair_Color_Common.mat" />
+  <ABList Path="Assets/GameData/Modle/benghuai/Materials/No Name.mat" Crc="149919265" ABName="attack" AssetName="No Name.mat" />
+  <ABList Path="Assets/GameData/Modle/benghuai/Materials/Weapon_Pistol_K9_62_2.mat" Crc="3367366523" ABName="attack" AssetName="Weapon_Pistol_K9_62_2.mat" />
+  <ABList Path="Assets/GameData/Modle/benghuai/Weapon_Pistol_K9_62_2.png" Crc="3214154899" ABName="attack" AssetName="Weapon_Pistol_K9_62_2.png" />
+  <ABList Path="Assets/GameData/Prefabs/Attack.prefab" Crc="1330568117" ABName="attack" AssetName="Attack.prefab" />
+  <ABList Path="Assets/GameData/Shaders/Skybox.shader" Crc="1986987949" ABName="shader" AssetName="Skybox.shader" />
+  <ABList Path="Assets/GameData/Shaders/Water.shader" Crc="1357101244" ABName="shader" AssetName="Water.shader" />
+  <ABList Path="Assets/GameData/Shaders/Xray.shader" Crc="1043595403" ABName="shader" AssetName="Xray.shader" />
+  <ABList Path="Assets/GameData/Sounds/menusound.mp3" Crc="2729331572" ABName="sound" AssetName="menusound.mp3" />
+  <ABList Path="Assets/GameData/Sounds/senlin.mp3" Crc="3022988390" ABName="sound" AssetName="senlin.mp3" />
+</AssetBunldeConfig>

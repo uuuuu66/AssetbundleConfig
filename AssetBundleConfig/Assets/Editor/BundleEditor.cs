@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using System.Xml.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 public class BundleEditor
 {
@@ -20,6 +22,7 @@ public class BundleEditor
     {
         m_AllFileDir.Clear();
         m_AllFileAB.Clear();
+        m_allPrefabDir.Clear();
         ABConfig abConfig = AssetDatabase.LoadAssetAtPath<ABConfig>(AB_CONFIG_PATH);
         foreach (ABConfig.FileDirABName fileDir in abConfig.m_AllFileDirAB)
         {
@@ -130,6 +133,7 @@ public class BundleEditor
                 {
                     continue;
                 }
+                Debug.Log("此AB包：" + allBundles[i] + "下面包含的资源文件路径" + allBundlePath[j]);
                 resPathDic.Add(allBundlePath[j], allBundles[i]);
             }
         }
@@ -147,16 +151,61 @@ public class BundleEditor
     /// <param name="resPathDic"></param>
     static void WriteData(Dictionary<string,string> resPathDic)
     {
+        
+
         AssetBunldeConfig config = new AssetBunldeConfig();
         config.ABList = new List<ABBase>();
         foreach (string path in resPathDic.Keys)
         {
+            ABBase abBase = new ABBase();
+            abBase.Path = path;
+            abBase.Crc = CRC32.GetCRC32(path);
+            abBase.ABName = resPathDic[path];
+            abBase.AssetName = path.Remove(0, path.LastIndexOf("/") + 1);//资源名
+            abBase.ABDependce = new List<string>();
+            string[] resDependce = AssetDatabase.GetDependencies(path);
+            for (int i = 0; i < resDependce.Length; i++)
+            {
+                string tempPath = resDependce[i];
+                if (tempPath == path || path.EndsWith(".cs"))
+                {
+                    continue;
+                }
+                string abName = "";
+                if (resPathDic.TryGetValue(tempPath, out abName))
+                {
+                    if (abName == resPathDic[path])
+                    {
+                        continue;
+                    }
+                    if (!abBase.ABDependce.Contains(abName))
+                    {
+                        abBase.ABDependce.Add(abName);
+                    }
+                }
 
+            }
+            config.ABList.Add(abBase);
         }
 
         //写入XML
-
+        string xmlPath = Application.dataPath + "/AssetbundleConfig.xml";
+        if (File.Exists(xmlPath))
+        {
+            File.Delete(xmlPath);
+        }
+        FileStream fs = new FileStream(xmlPath, FileMode.Create, FileAccess.ReadWrite,FileShare.ReadWrite);
+        StreamWriter sw = new StreamWriter(fs, System.Text.Encoding.UTF8);
+        XmlSerializer xs = new XmlSerializer(config.GetType());
+        xs.Serialize(sw, config);
+        sw.Close();
+        fs.Close();
         //写入二进制
+        string bytePath = m_BundleTargetPath + "/AssetBundleConfig.bytes";
+        FileStream fsb = new FileStream(bytePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+        BinaryFormatter bf = new BinaryFormatter();
+        bf.Serialize(fsb, config);
+        fsb.Close();
     }
 
     /// <summary>
