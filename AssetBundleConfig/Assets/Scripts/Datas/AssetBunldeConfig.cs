@@ -12,8 +12,6 @@ public class AssetBunldeConfig
         get;
         set;
     }
-
-
 }
 
 [System.Serializable]

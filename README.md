@@ -1,2 +1,3 @@
 # AssetbundleConfig
 assetbundle打包方案
+通过配置文件夹下prefab单独打ab包，整个文件夹打ab包，prefab文件不能重名。

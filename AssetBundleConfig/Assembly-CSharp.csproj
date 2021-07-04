@@ -56,14 +56,21 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\GameData\Modle\benghuai\AutoRotation.cs" />
-     <Compile Include="Assets\Scripts\AssetBunldeConfig.cs" />
-     <Compile Include="Assets\Scripts\CRC32.cs" />
+     <Compile Include="Assets\Scripts\AssetBundleManager.cs" />
+     <Compile Include="Assets\Scripts\Datas\AssetBunldeConfig.cs" />
+     <Compile Include="Assets\Scripts\GameStart.cs" />
+     <Compile Include="Assets\Scripts\ObjectManager.cs" />
+     <Compile Include="Assets\Scripts\ResourceManager.cs" />
+     <Compile Include="Assets\Scripts\ResourceTest.cs" />
+     <Compile Include="Assets\Scripts\Singleton.cs" />
+     <Compile Include="Assets\Scripts\Tools\CRC32.cs" />
+     <Compile Include="Assets\Scripts\Tools\ClassObjectPool.cs" />
      <None Include="Assets\GameData\Shaders\Xray.shader" />
      <None Include="Assets\GameData\Shaders\Water.shader" />
      <None Include="Assets\AssetbundleConfig.xml" />
      <None Include="Assets\GameData\Shaders\Skybox.shader" />
      <None Include="Assets\GameData\Modle\benghuai\cloud.shader" />
-     <None Include="Assets\GameData\Modle\benghuai\benghuai.shader" />
+     <None Include="Assets\GameData\Shaders\benghuai.shader" />
  <Reference Include="UnityEngine">
  <HintPath>D:/Unity/2019.4.27f1c1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
  </Reference>

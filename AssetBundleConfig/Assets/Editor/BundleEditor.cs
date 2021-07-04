@@ -8,18 +8,21 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public class BundleEditor
 {
-    public static string m_BundleTargetPath = Application.streamingAssetsPath;
-    public static string AB_CONFIG_PATH = "Assets/Editor/ABConfig.asset";
+    private static string m_BundleTargetPath = Application.streamingAssetsPath;
+    private static string AB_CONFIG_PATH = "Assets/Editor/ABConfig.asset";
 
-    //key AB包名，value 路径，所有文件夹ab包dic
-    public static Dictionary<string, string> m_AllFileDir = new Dictionary<string, string>();
+    //key AB包名，value 路径，所有文件夹ab包的字典
+    private static Dictionary<string, string> m_AllFileDir = new Dictionary<string, string>();
     //过滤AB包
-    public static List<string> m_AllFileAB = new List<string>();
+    private static List<string> m_AllFileAB = new List<string>();
     //单个prefab的ab包
-    public static Dictionary<string, List<string>> m_allPrefabDir = new Dictionary<string, List<string>>();
+    private static Dictionary<string, List<string>> m_allPrefabDir = new Dictionary<string, List<string>>();
+    //储存所有有效路径
+    private static List<string> m_ConfigFil = new List<string>();
     [MenuItem("Tools/打包")]
     public static void Build()
     {
+        m_ConfigFil.Clear();
         m_AllFileDir.Clear();
         m_AllFileAB.Clear();
         m_allPrefabDir.Clear();
@@ -34,14 +37,16 @@ public class BundleEditor
             {
                 m_AllFileDir.Add(fileDir.ABName, fileDir.Path);
                 m_AllFileAB.Add(fileDir.Path);
+                m_ConfigFil.Add(fileDir.Path);
             }
         }
         string[] allStr = AssetDatabase.FindAssets("t:prefab", abConfig.m_AllPrefabPath.ToArray());
         for (int i = 0;i< allStr.Length; i++)
         {
+            //拿到所有的prefab路径的guid转成路径
             string path = AssetDatabase.GUIDToAssetPath(allStr[i]);
             EditorUtility.DisplayProgressBar("查找prefab", "prefab:" + path, i * 1.0f / allStr.Length);
-            
+            m_ConfigFil.Add(path);
             if (!ContainAllFileAB(path))
             {
                 //加载prefab
@@ -50,6 +55,7 @@ public class BundleEditor
                 string[] allDepend = AssetDatabase.GetDependencies(path);
 
                 List<string> allDependPath = new List<string>();
+                //判断是否已经打文件夹的时候打过了
                 for (int j = 0; j < allDepend.Length; j++)
                 {
                     Debug.Log(allDepend[j]);
@@ -134,7 +140,12 @@ public class BundleEditor
                     continue;
                 }
                 Debug.Log("此AB包：" + allBundles[i] + "下面包含的资源文件路径" + allBundlePath[j]);
-                resPathDic.Add(allBundlePath[j], allBundles[i]);
+                if (VaildPath(allBundlePath[j]))
+                {
+                    resPathDic.Add(allBundlePath[j], allBundles[i]);
+                }
+                
+                
             }
         }
 
@@ -161,23 +172,31 @@ public class BundleEditor
             abBase.Path = path;
             abBase.Crc = CRC32.GetCRC32(path);
             abBase.ABName = resPathDic[path];
-            abBase.AssetName = path.Remove(0, path.LastIndexOf("/") + 1);//资源名
+            abBase.AssetName = path.Remove(0, path.LastIndexOf("/") + 1);//资源名，0到最后一个斜杠路径剩下的就是资源名
             abBase.ABDependce = new List<string>();
             string[] resDependce = AssetDatabase.GetDependencies(path);
+            //查找其他的assetbundle，看资源在哪个assetbundle
             for (int i = 0; i < resDependce.Length; i++)
             {
                 string tempPath = resDependce[i];
+                //过滤掉自己和脚本
                 if (tempPath == path || path.EndsWith(".cs"))
                 {
                     continue;
                 }
+
                 string abName = "";
+                //获取依赖项在哪个AB包
+                //如果在AB包里，就拿abname出来
                 if (resPathDic.TryGetValue(tempPath, out abName))
                 {
+                    //如果在自己的包就继续
                     if (abName == resPathDic[path])
                     {
                         continue;
                     }
+                    //不包含的情况下再把ab包拿出来
+                    //如果他有好几个shader都在一个包里，那只需要加一次
                     if (!abBase.ABDependce.Contains(abName))
                     {
                         abBase.ABDependce.Add(abName);
@@ -201,7 +220,11 @@ public class BundleEditor
         sw.Close();
         fs.Close();
         //写入二进制
-        string bytePath = m_BundleTargetPath + "/AssetBundleConfig.bytes";
+        foreach (ABBase abBase in config.ABList)
+        {
+            abBase.Path = "";
+        }
+        string bytePath = "Assets/Data/ABData/AssetBundleConfig.bytes";
         FileStream fsb = new FileStream(bytePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
         BinaryFormatter bf = new BinaryFormatter();
         bf.Serialize(fsb, config);
@@ -253,7 +276,7 @@ public class BundleEditor
 
 
     /// <summary>
-    /// 判断是否在打文件夹包的时候打过了
+    /// 判断是否在打文件夹包的时候打过了,是否包含在已经有的ab包里，做ab包冗余剔除
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
@@ -261,7 +284,23 @@ public class BundleEditor
     {
         for (int i = 0; i < m_AllFileAB.Count; i++)
         {
-            if (path == m_AllFileAB[i] || path.Contains(m_AllFileAB[i]))
+            if (path == m_AllFileAB[i] || (path.Contains(m_AllFileAB[i]))&&(path.Replace(m_AllFileAB[i],"")[0]=='/'))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    /// <summary>
+    /// 是否有效路径
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    static bool VaildPath(string path)
+    {
+        for (int i = 0; i < m_ConfigFil.Count; i++)
+        {
+            if (path.Contains(m_ConfigFil[i]))
             {
                 return true;
             }
