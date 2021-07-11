@@ -2,14 +2,78 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 加载优先级
+/// </summary>
+public enum LoadResPriority
+{
+    RES_HIGHT = 0,//最高优先级
+    RES_MIDDLE,//一般优先级
+    RES_SLOW,//低优先级
+    RES_NUM,
+}
+
+public class AsyncLoadResParam
+{
+    public List<AsyncCallBack> m_CallBackList = new List<AsyncCallBack>();
+    public uint m_Crc;
+    public string m_Path;
+    public LoadResPriority m_Priority = LoadResPriority.RES_SLOW;
+
+    public void Reset()
+    {
+        m_CallBackList.Clear();
+        m_Crc = 0;
+        m_Path = "";
+        m_Priority = LoadResPriority.RES_SLOW;
+    }
+}
+
+public class AsyncCallBack
+{
+    public OnAsyncObjFinish m_DealFinish = null;
+    //回调参数
+    public object[] m_Param;
+
+    public void Reset()
+    {
+        m_DealFinish = null;
+        m_Param = null;
+    }
+}
+
+public delegate void OnAsyncObjFinish(string path,Object obj,params object[] param);
+
 
 public class ResourceManager : Singleton<ResourceManager>
 {
-    public bool m_LoadFromAssetBundle = true;
+    public bool m_LoadFromAssetBundle = false;
     //缓存使用的资源列表
     public Dictionary<uint, ResourceItem> m_AssetDic { get; set; } = new Dictionary<uint, ResourceItem>();
     //缓存引用计数为0的资源列表，达到缓存最大的时候，释放这个列表里面最早没用的资源
     protected CMapList<ResourceItem> m_NoRefrenceAssetMapList = new CMapList<ResourceItem>();
+
+    //中间类，回调类的类对象池
+    protected ClassObjectPool<AsyncLoadResParam> m_AsyncLoadResParamPool = new ClassObjectPool<AsyncLoadResParam>(50);
+    protected ClassObjectPool<AsyncCallBack> m_AsyncCallBackPool = new ClassObjectPool<AsyncCallBack>(100);
+    //mono脚本
+    protected MonoBehaviour m_Startmono;
+    //正在异步加载的资源列表,所有优先级的列表
+    protected List<AsyncLoadResParam>[] m_LoadingAssetList = new List<AsyncLoadResParam>[(int)LoadResPriority.RES_NUM];
+    //正在异步加载的Dic
+    protected Dictionary<uint, AsyncLoadResParam> m_LoadingAssetDic = new Dictionary<uint, AsyncLoadResParam>();
+
+    public void Init(MonoBehaviour mono)
+    {
+        for (int i = 0; i < (int)LoadResPriority.RES_NUM; i++)
+        {
+            m_LoadingAssetList[i] = new List<AsyncLoadResParam>();
+
+        }
+        m_Startmono = mono;
+        m_Startmono.StartCoroutine(AsyncLoadCor());
+    }
+
 #if UNITY_EDITOR
     protected T LoadAssetByEditor<T>(string path) where T : UnityEngine.Object
     {
@@ -217,6 +281,60 @@ public class ResourceManager : Singleton<ResourceManager>
             }
         }
         return item;
+    }
+
+    /// <summary>
+    /// 异步加载资源(仅仅是不需要实例化的资源，例如音频，图片等）
+    /// </summary>
+    public void AsyncLoadResource(string path,OnAsyncObjFinish dealFinish,LoadResPriority priority,uint crc = 0, params object[] param)
+    {
+        if (crc == 0)
+        {
+            crc = CRC32.GetCRC32(path);
+        }
+
+        ResourceItem item = GetCacheResourceItem(crc);
+        if (item != null)
+        {
+            if (dealFinish != null)
+            {
+                dealFinish(path, item.m_Obj, param);
+            }
+            return;
+        }
+
+        //判断是否在加载中
+        AsyncLoadResParam para = null;
+        if (!m_LoadingAssetDic.TryGetValue(crc, out para)||para == null)
+        {
+            para = m_AsyncLoadResParamPool.Spawn(true);
+            para.m_Crc = crc;
+            para.m_Path = path;
+            para.m_Priority = priority;
+            m_LoadingAssetDic.Add(crc, para);
+            //异步队列
+            m_LoadingAssetList[(int)priority].Add(para);
+
+        }
+
+        //往回调列表里面加回调
+        AsyncCallBack callBack = m_AsyncCallBackPool.Spawn(true);
+        callBack.m_DealFinish = dealFinish;
+        callBack.m_Param = param;
+        para.m_CallBackList.Add(callBack);
+    }
+
+    /// <summary>
+    /// 异步加载
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator AsyncLoadCor()
+    {
+
+        while (true)
+        {
+            yield return null;
+        }
     }
 }
 
