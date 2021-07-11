@@ -1,10 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <AssetBunldeConfig xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ABList Path="Assets/Data/ABData/AssetBundleConfig.bytes" Crc="3716585758" ABName="assetbundleconfig" AssetName="AssetBundleConfig.bytes" />
-  <ABList Path="Assets/GameData/Prefabs/Attack.prefab" Crc="1330568117" ABName="attack" AssetName="Attack.prefab">
-    <ABDependce>shader</ABDependce>
-  </ABList>
-  <ABList Path="Assets/GameData/Shaders/benghuai.shader" Crc="1145813025" ABName="shader" AssetName="benghuai.shader" />
+  <ABList Path="Assets/GameData/Prefabs/Attack.prefab" Crc="1330568117" ABName="attack" AssetName="Attack.prefab" />
+  <ABList Path="Assets/GameData/Shaders/benghuai.shader" Crc="1145813025" ABName="attack" AssetName="benghuai.shader" />
   <ABList Path="Assets/GameData/Shaders/Skybox.shader" Crc="1986987949" ABName="shader" AssetName="Skybox.shader" />
   <ABList Path="Assets/GameData/Shaders/Water.shader" Crc="1357101244" ABName="shader" AssetName="Water.shader" />
   <ABList Path="Assets/GameData/Shaders/Xray.shader" Crc="1043595403" ABName="shader" AssetName="Xray.shader" />

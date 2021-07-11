@@ -269,3 +269,4 @@ D:\UnityProject\AssetbundleConfig\AssetBundleConfig\obj\Debug\Assembly-CSharp.cs
 D:\UnityProject\AssetbundleConfig\AssetBundleConfig\obj\Debug\Assembly-CSharp.csproj.CopyComplete
 D:\UnityProject\AssetbundleConfig\AssetBundleConfig\obj\Debug\Assembly-CSharp.dll
 D:\UnityProject\AssetbundleConfig\AssetBundleConfig\obj\Debug\Assembly-CSharp.pdb
+D:\UnityProject\AssetbundleConfig\AssetBundleConfig\obj\Debug\Assembly-CSharp.csprojAssemblyReference.cache

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ResourceManager : Singleton<ResourceManager>
 {
-    public bool m_LoadFromAssetBundle = false;
+    public bool m_LoadFromAssetBundle = true;
     //缓存使用的资源列表
     public Dictionary<uint, ResourceItem> m_AssetDic { get; set; } = new Dictionary<uint, ResourceItem>();
     //缓存引用计数为0的资源列表，达到缓存最大的时候，释放这个列表里面最早没用的资源

@@ -74,7 +74,7 @@ public class AssetBundleManager : Singleton<AssetBundleManager>
             return item;
         }
 
-        item.m_AssetBundle = LoadAssetBundle(item.m_AssetName);
+        item.m_AssetBundle = LoadAssetBundle(item.m_AssetBundleName);
 
 
         //加载依赖
