@@ -41,8 +41,17 @@ public class ResourceManager : Singleton<ResourceManager>
 #if UNITY_EDITOR
         if (!m_LoadFromAssetBundle)
         {
-            obj = LoadAssetByEditor<T>(path);
+           
             item = AssetBundleManager.Instance.FindResourceItem(crc);
+            if (item.m_Obj != null)
+            {
+                obj = item.m_Obj as T;
+            }
+            else
+            {
+                obj = LoadAssetByEditor<T>(path);
+            }
+           
         }
 #endif
 
@@ -51,7 +60,14 @@ public class ResourceManager : Singleton<ResourceManager>
             item = AssetBundleManager.Instance.LoadResourceAssetBundle(crc);
             if (item != null&&item.m_AssetBundle!=null)
             {
-                obj = item.m_AssetBundle.LoadAsset<T>(item.m_AssetName);
+                if (item.m_Obj != null)
+                {
+                    obj = item.m_Obj as T;
+                }
+                else
+                {
+                    obj = item.m_AssetBundle.LoadAsset<T>(item.m_AssetName);
+                }
             }
         }
         CacheResource(path,ref item,crc,obj);
@@ -158,18 +174,21 @@ public class ResourceManager : Singleton<ResourceManager>
             return;
         }
 
-        //如果删了还要缓存就加到双向链表去
-        if (!destroyCache)
-        {
-            m_NoRefrenceAssetMapList.InsertToHead(item);
-            return;
-        }
-
-        //如果不缓存，先判断有没有，有的话就走下面释放没有就return掉
+        
         if (!m_AssetDic.Remove(item.m_Crc))
         {
             return;
         }
+
+        //如果删了还要缓存就加到双向链表去
+        if (!destroyCache)
+        {
+            //放回去之后占内存的obj和assetbundle是不清空的
+            m_NoRefrenceAssetMapList.InsertToHead(item);
+            return;
+        }
+
+        
 
         //释放assetbundle引用
         AssetBundleManager.Instance.ReleaseAsset(item);
