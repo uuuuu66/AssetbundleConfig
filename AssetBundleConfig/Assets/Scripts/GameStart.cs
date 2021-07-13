@@ -55,6 +55,7 @@ public class GameStart : MonoBehaviour
     private void OnApplicationQuit()
     {
 #if UNITY_EDITOR
+        ResourceManager.Instance.ClearCache();
         Resources.UnloadUnusedAssets();
 #endif
     }
