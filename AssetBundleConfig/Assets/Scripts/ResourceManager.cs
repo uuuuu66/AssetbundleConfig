@@ -13,6 +13,26 @@ public enum LoadResPriority
     RES_NUM,
 }
 
+public class ResourceObj
+{
+    //路径对应Crc
+    public uint m_Crc = 0;
+    //实例化出来的gameobject
+    public GameObject m_CloneObj = null;
+    //是否跳场景清除
+    public bool m_bClear = true;
+    //储存GUID
+    public long m_GUID = 0;
+    //
+    public void Reset()
+    {
+        m_Crc = 0;
+        m_CloneObj = null;
+        m_bClear = true;
+        m_GUID = 0;
+    }
+}
+
 public class AsyncLoadResParam
 {
     public List<AsyncCallBack> m_CallBackList = new List<AsyncCallBack>();

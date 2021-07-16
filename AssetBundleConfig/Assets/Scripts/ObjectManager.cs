@@ -5,6 +5,58 @@ using System;
 
 public class ObjectManager : Singleton<ObjectManager>
 {
+    public Transform RecyclePoolTrs;
+    //对象池key是crc
+    protected Dictionary<uint, List<ResourceObj>> m_ObjectPoolDic = new Dictionary<uint, List<ResourceObj>>();
+    //ResourceObj类对象池
+    protected ClassObjectPool<ResourceObj> m_ResourceObjClassPool = ObjectManager.Instance.GetOrCreatClassPool<ResourceObj>(1000);
+
+
+    public void Init(Transform recycleTrs)
+    {
+        RecyclePoolTrs = recycleTrs;
+    }
+    /// <summary>
+    /// 从对象池取出obj
+    /// </summary>
+    /// <param name="crc"></param>
+    /// <returns></returns>
+    protected ResourceObj GetObjFromPool(uint crc)
+    {
+        List<ResourceObj> st = null;
+        if (m_ObjectPoolDic.TryGetValue(crc, out st) && st != null&&st.Count>0)
+        {
+            ResourceObj resObj = st[0];
+            st.RemoveAt(0);
+            GameObject obj = resObj.m_CloneObj;
+            //判空比==效率高
+            if (!System.Object.ReferenceEquals(obj, null))
+            {
+#if UNITY_EDITOR
+                if (obj.name.EndsWith("(Recycle)"))
+                {
+                    obj.name = obj.name.Replace("(Recycle)", "");
+                }
+#endif
+            }
+            return resObj;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 同步加载
+    /// </summary>
+    /// <param name="path">路径</param>
+    /// <param name="bClear">是否跳场景清空</param>
+    /// <returns></returns>
+    public GameObject InstantiateObject(string path,bool bClear = true)
+    {
+        uint crc = CRC32.GetCRC32(path);
+        ResourceObj resourceObj = GetObjFromPool(crc);
+        return resourceObj.m_CloneObj;
+    }
+
     #region 类对象池的使用
     protected Dictionary<Type, object> m_ClassPoolDic = new Dictionary<Type, object>();
     /// <summary>
@@ -48,4 +100,5 @@ public class ObjectManager : Singleton<ObjectManager>
         return pool.Spawn(true);
     }
     #endregion
+
 }

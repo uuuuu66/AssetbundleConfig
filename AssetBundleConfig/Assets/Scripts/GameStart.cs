@@ -10,16 +10,19 @@ public class GameStart : MonoBehaviour
     {
         AssetBundleManager.Instance.LoadAssetBundleConfig();
         ResourceManager.Instance.Init(this);
+        ObjectManager.Instance.Init(transform.Find("RecyclePoolTrs"));
     }
     // Start is called before the first frame update
     void Start()
     {
+        //预加载
+        ResourceManager.Instance.PreloadRes("Assets/GameData/Sounds/senlin.mp3");
         //同步加载
         //clip = ResourceManager.Instance.LoadResource<AudioClip>("Assets/GameData/Sounds/senlin.mp3");
         //m_Audio.clip = clip;
         //m_Audio.Play();
         //异步加载
-        ResourceManager.Instance.AsyncLoadResource("Assets/GameData/Sounds/menusound.mp3", OnLoadFinish,LoadResPriority.RES_MIDDLE);
+        //ResourceManager.Instance.AsyncLoadResource("Assets/GameData/Sounds/menusound.mp3", OnLoadFinish,LoadResPriority.RES_MIDDLE);
     }
 
     void OnLoadFinish(string path,Object obj,params object[] param)
@@ -48,6 +51,23 @@ public class GameStart : MonoBehaviour
             m_Audio.Stop();
             m_Audio.clip = null;
             ResourceManager.Instance.ReleaseResourece(clip,true);
+            clip = null;
+        }
+
+        //预加载使用
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            long Time = System.DateTime.Now.Ticks;
+            clip = ResourceManager.Instance.LoadResource<AudioClip>("Assets/GameData/Sounds/senlin.mp3");
+            Debug.Log("预加载时间：" + (System.DateTime.Now.Ticks - Time));
+            m_Audio.clip = clip;
+            m_Audio.Play();
+        }
+        //预加载卸载
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            ResourceManager.Instance.ReleaseResourece(clip,true);
+            m_Audio.clip = null;
             clip = null;
         }
     }
