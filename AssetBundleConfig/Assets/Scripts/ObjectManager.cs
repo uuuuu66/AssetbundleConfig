@@ -5,16 +5,27 @@ using System;
 
 public class ObjectManager : Singleton<ObjectManager>
 {
+    //对象池节点
     public Transform RecyclePoolTrs;
+    //场景节点
+    public Transform SceneTrs;
     //对象池key是crc
     protected Dictionary<uint, List<ResourceObj>> m_ObjectPoolDic = new Dictionary<uint, List<ResourceObj>>();
+    //暂存ResObj的Dic
+    protected Dictionary<int, ResourceObj> m_ResourceObjDic = new Dictionary<int, ResourceObj>();
     //ResourceObj类对象池
-    protected ClassObjectPool<ResourceObj> m_ResourceObjClassPool = ObjectManager.Instance.GetOrCreatClassPool<ResourceObj>(1000);
+    protected ClassObjectPool<ResourceObj> m_ResourceObjClassPool = null;
 
-
-    public void Init(Transform recycleTrs)
+    /// <summary>
+    /// 初始化
+    /// </summary>
+    /// <param name="recycleTrs">回收节点</param>
+    /// <param name="sceneTrs">场景默认节点</param>
+    public void Init(Transform recycleTrs,Transform sceneTrs)
     {
+        m_ResourceObjClassPool= GetOrCreatClassPool<ResourceObj>(1000);
         RecyclePoolTrs = recycleTrs;
+        SceneTrs = sceneTrs;
     }
     /// <summary>
     /// 从对象池取出obj
@@ -26,12 +37,16 @@ public class ObjectManager : Singleton<ObjectManager>
         List<ResourceObj> st = null;
         if (m_ObjectPoolDic.TryGetValue(crc, out st) && st != null&&st.Count>0)
         {
+            //resourceManager的引用计数
+            ResourceManager.Instance.IncreaseResouceRef(crc);
             ResourceObj resObj = st[0];
             st.RemoveAt(0);
             GameObject obj = resObj.m_CloneObj;
             //判空比==效率高
             if (!System.Object.ReferenceEquals(obj, null))
             {
+                resObj.m_Already = false;
+
 #if UNITY_EDITOR
                 if (obj.name.EndsWith("(Recycle)"))
                 {
@@ -50,12 +65,125 @@ public class ObjectManager : Singleton<ObjectManager>
     /// <param name="path">路径</param>
     /// <param name="bClear">是否跳场景清空</param>
     /// <returns></returns>
-    public GameObject InstantiateObject(string path,bool bClear = true)
+    public GameObject InstantiateObject(string path,bool setSceneObj = false,bool bClear = true)
     {
         uint crc = CRC32.GetCRC32(path);
+        //先从池子里获取这个resourceobj
         ResourceObj resourceObj = GetObjFromPool(crc);
+        if (resourceObj == null)
+        {
+            //没有就从池子生成
+            resourceObj = m_ResourceObjClassPool.Spawn(true);
+            resourceObj.m_Crc = crc;
+            resourceObj.m_bClear = bClear;
+            //ResourceManager提供加载方法
+            resourceObj = ResourceManager.Instance.LoadResource(path, resourceObj);
+
+            if (resourceObj.m_ResItem.m_Obj != null)
+            {
+                resourceObj.m_CloneObj = GameObject.Instantiate(resourceObj.m_ResItem.m_Obj) as GameObject;
+
+            }
+        }
+        //是否要把它放到场景下面
+        if (setSceneObj)
+        {
+            resourceObj.m_CloneObj.transform.SetParent(SceneTrs, false);
+        }
+
+        int tempID = resourceObj.m_CloneObj.GetInstanceID();
+        if (!m_ResourceObjDic.ContainsKey(tempID))
+        {
+            m_ResourceObjDic.Add(tempID, resourceObj);
+        }
+        
         return resourceObj.m_CloneObj;
     }
+
+    /// <summary>
+    /// 回收资源
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <param name="maxCacheCount"></param>
+    /// <param name="destroyCache"></param>
+    /// <param name="recycleParent"></param>
+    public void ReleaseObject(GameObject obj, int maxCacheCount = -1, bool destroyCache = false, bool recycleParent = true)
+    {
+        if (obj == null)
+        {
+            return;
+        }
+
+        ResourceObj resObj = null;
+        int tempID = obj.GetInstanceID();
+        if (!m_ResourceObjDic.TryGetValue(tempID, out resObj))
+        {
+            Debug.Log(obj.name + "对象不是objectManager创建的！");
+            return;
+        }
+
+        if (resObj == null)
+        {
+            Debug.LogError("缓存的ResourceObj为空！");
+            return;
+        }
+
+        if (resObj.m_Already)
+        {
+            Debug.LogError("该对象已经放回对象池了，检查自己是否清空引用");
+            return;
+        }
+#if UNITY_EDITOR
+        obj.name += "(Recycle)";
+#endif
+        List<ResourceObj> st = null;
+        if (maxCacheCount == 0)
+        {
+            m_ResourceObjDic.Remove(tempID);
+            ResourceManager.Instance.ReleaseResourece(resObj, destroyCache);
+            resObj.Reset();
+            m_ResourceObjClassPool.Recycle(resObj);
+        }
+        else//回收到对象池
+        {
+            //看池子里有没有这个资源
+            if (!m_ObjectPoolDic.TryGetValue(resObj.m_Crc, out st) || st == null)
+            {
+                st = new List<ResourceObj>();
+                m_ObjectPoolDic.Add(resObj.m_Crc, st);
+            }
+
+            if (resObj.m_CloneObj)
+            {
+                if (recycleParent)
+                {
+                    resObj.m_CloneObj.transform.SetParent(SceneTrs);
+                }
+                else
+                {
+                    resObj.m_CloneObj.SetActive(false);
+                }
+            }
+
+            if (maxCacheCount < 0 || st.Count < maxCacheCount)
+            {
+                st.Add(resObj);
+                resObj.m_Already = true;
+                //ResourceManager 做一个引用计数
+                ResourceManager.Instance.DecreaseResourceRef(resObj);
+            }
+            else//达到了最大的缓存个数
+            {
+                m_ResourceObjDic.Remove(tempID);
+                ResourceManager.Instance.ReleaseResourece(resObj, destroyCache);
+                resObj.Reset();
+                m_ResourceObjClassPool.Recycle(resObj);
+            }
+
+
+        }
+    }
+
 
     #region 类对象池的使用
     protected Dictionary<Type, object> m_ClassPoolDic = new Dictionary<Type, object>();

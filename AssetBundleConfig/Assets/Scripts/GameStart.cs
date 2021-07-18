@@ -4,25 +4,30 @@ using UnityEngine;
 
 public class GameStart : MonoBehaviour
 {
+    private GameObject obj;
+
     public AudioSource m_Audio;
     private AudioClip clip;
     void Awake()
     {
+        GameObject.DontDestroyOnLoad(gameObject);
         AssetBundleManager.Instance.LoadAssetBundleConfig();
         ResourceManager.Instance.Init(this);
-        ObjectManager.Instance.Init(transform.Find("RecyclePoolTrs"));
+        ObjectManager.Instance.Init(transform.Find("RecyclePoolTrs"), transform.Find("SceneTrs"));
     }
     // Start is called before the first frame update
     void Start()
     {
         //预加载
-        ResourceManager.Instance.PreloadRes("Assets/GameData/Sounds/senlin.mp3");
+        //ResourceManager.Instance.PreloadRes("Assets/GameData/Sounds/senlin.mp3");
         //同步加载
         //clip = ResourceManager.Instance.LoadResource<AudioClip>("Assets/GameData/Sounds/senlin.mp3");
         //m_Audio.clip = clip;
         //m_Audio.Play();
         //异步加载
         //ResourceManager.Instance.AsyncLoadResource("Assets/GameData/Sounds/menusound.mp3", OnLoadFinish,LoadResPriority.RES_MIDDLE);
+        obj = ObjectManager.Instance.InstantiateObject("Assets/GameData/Prefabs/Attack.prefab");
+
     }
 
     void OnLoadFinish(string path,Object obj,params object[] param)
@@ -69,6 +74,23 @@ public class GameStart : MonoBehaviour
             ResourceManager.Instance.ReleaseResourece(clip,true);
             m_Audio.clip = null;
             clip = null;
+        }
+        //对象同步加载
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            ObjectManager.Instance.ReleaseObject(obj);
+            obj = null;
+        }
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            ObjectManager.Instance.ReleaseObject(obj,0,true);
+            obj = null;
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            obj = ObjectManager.Instance.InstantiateObject("Assets/GameData/Prefabs/Attack.prefab", true);
         }
     }
 

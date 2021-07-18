@@ -17,19 +17,23 @@ public class ResourceObj
 {
     //路径对应Crc
     public uint m_Crc = 0;
+    //存ResourceItem
+    public ResourceItem m_ResItem = null;
     //实例化出来的gameobject
     public GameObject m_CloneObj = null;
     //是否跳场景清除
     public bool m_bClear = true;
     //储存GUID
     public long m_GUID = 0;
-    //
+    //是否已经放回对象池
+    public bool m_Already = false;
     public void Reset()
     {
         m_Crc = 0;
         m_CloneObj = null;
         m_bClear = true;
         m_GUID = 0;
+        m_Already = false;
     }
 }
 
@@ -119,12 +123,64 @@ public class ResourceManager : Singleton<ResourceManager>
         }
 
         tempList.Clear();
-        //while (m_NoRefrenceAssetMapList.Size() > 0)
-        //{
-        //    ResourceItem item = m_NoRefrenceAssetMapList.Back();
-        //    DestoryResourceItem(item,true);
-        //    m_NoRefrenceAssetMapList.Pop();
-        //}
+
+    }
+
+    /// <summary>
+    /// 根据ResObj增加引用计数
+    /// </summary>
+    /// <returns></returns>
+    public int IncreaseResouceRef(ResourceObj resObj,int count = 1)
+    {
+        return resObj != null ? IncreaseResouceRef(resObj.m_Crc, count) : 0;
+    }
+
+    /// <summary>
+    /// 根据path增加引用计数
+    /// </summary>
+    /// <param name="crc"></param>
+    /// <param name="count"></param>
+    /// <returns></returns>
+    public int IncreaseResouceRef(uint crc = 0, int count = 1)
+    {
+        ResourceItem item = null;
+        if (!m_AssetDic.TryGetValue(crc, out item) || item == null)
+        {
+            return 0;
+        }
+        item.RefCount += count;
+        item.m_LastUseTime = Time.realtimeSinceStartup;
+
+        return item.RefCount;
+    }
+
+    /// <summary>
+    /// 根据ResourceObj减少引用计数
+    /// </summary>
+    /// <param name="resObj"></param>
+    /// <param name="count"></param>
+    /// <returns></returns>
+    public int DecreaseResourceRef(ResourceObj resObj, int count = 1)
+    {
+        return resObj != null ? DecreaseResourceRef(resObj.m_Crc, count) : 0;
+    }
+
+    /// <summary>
+    /// 根据路径减少引用计数
+    /// </summary>
+    /// <param name="crc"></param>
+    /// <param name="count"></param>
+    /// <returns></returns>
+    public int DecreaseResourceRef(uint crc=0, int count = 1)
+    {
+        ResourceItem item = null;
+        if (!m_AssetDic.TryGetValue(crc, out item) || item == null)
+        {
+            return 0;
+        }
+        item.RefCount -= count;
+
+        return item.RefCount;
     }
 
     /// <summary>
@@ -194,6 +250,68 @@ public class ResourceManager : Singleton<ResourceManager>
     }
 #endif
 
+
+    /// <summary>
+    /// 同步加载资源，针对给ObjectManager借口
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="resObj"></param>
+    /// <returns></returns>
+    public ResourceObj LoadResource(string path,ResourceObj resObj)
+    {
+        if (resObj == null)
+        {
+            return null;
+        }
+
+        uint crc = resObj.m_Crc == 0 ? CRC32.GetCRC32(path) : resObj.m_Crc;
+        //获取缓存
+        ResourceItem item = GetCacheResourceItem(crc);
+
+        if (item != null)
+        {
+            resObj.m_ResItem = item;
+            return resObj;
+        }
+
+        Object obj = null;
+#if UNITY_EDITOR
+        if (!m_LoadFromAssetBundle)
+        {
+            item = AssetBundleManager.Instance.FindResourceItem(crc);
+            if (item.m_Obj != null)
+            {
+                obj = item.m_Obj as Object;
+            }
+            else
+            {
+                obj = LoadAssetByEditor<Object>(path);
+            }
+        }
+#endif
+
+        if (obj == null)
+        {
+            item = AssetBundleManager.Instance.LoadResourceAssetBundle(crc);
+            if (item != null && item.m_AssetBundle != null)
+            {
+                if (item.m_Obj != null)
+                {
+                    obj = item.m_Obj as Object;
+                }
+                else
+                {
+                    obj = item.m_AssetBundle.LoadAsset<Object>(item.m_AssetName);
+                }
+            }
+        }
+
+        CacheResource(path, ref item, crc, obj);
+        resObj.m_ResItem = item;
+        item.m_Clear = resObj.m_bClear;
+        return resObj;
+    }
+
     /// <summary>
     /// 同步资源加载，外部直接调用，仅加载不需要实例化的资源如Texture，音频等等
     /// </summary>
@@ -252,6 +370,31 @@ public class ResourceManager : Singleton<ResourceManager>
     }
 
     /// <summary>
+    /// 根据ResourceObj卸载资源
+    /// </summary>
+    /// <param name="resObj"></param>
+    /// <param name="destroyObj"></param>
+    /// <returns></returns>
+    public bool ReleaseResourece(ResourceObj resObj, bool destroyObj = false)
+    {
+        if (resObj == null)
+        {
+            return false;
+        }
+
+        ResourceItem item = null;
+        if (!m_AssetDic.TryGetValue(resObj.m_Crc, out item) || item == null)
+        {
+            Debug.LogError("AssetDic里不存在该资源：" + resObj.m_CloneObj.name + " 可能释放了多次");
+        }
+        GameObject.Destroy(resObj.m_CloneObj);
+
+        item.RefCount--;
+        DestoryResourceItem(item, destroyObj);
+        return true;
+    }
+
+    /// <summary>
     /// 不需要实例化的资源的卸载
     /// </summary>
     /// <param name="obj"></param>
@@ -282,8 +425,10 @@ public class ResourceManager : Singleton<ResourceManager>
 
         item.RefCount--;
         DestoryResourceItem(item, destroyObj);
-        return false;
+        return true;
     }
+
+
 
     /// <summary>
     /// 不需要实例化的资源卸载根据路径
@@ -403,6 +548,12 @@ public class ResourceManager : Singleton<ResourceManager>
 
     }
 
+    /// <summary>
+    /// 从资源池获取缓存资源
+    /// </summary>
+    /// <param name="crc"></param>
+    /// <param name="addrefcount"></param>
+    /// <returns></returns>
     ResourceItem GetCacheResourceItem(uint crc,int addrefcount = 1)
     {
         ResourceItem item = null;
