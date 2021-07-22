@@ -101,6 +101,54 @@ public class ObjectManager : Singleton<ObjectManager>
     }
 
     /// <summary>
+    /// 异步对象加载
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="fealFinish"></param>
+    /// <param name="priority"></param>
+    /// <param name="setSceneObject"></param>
+    /// <param name="bClear"></param>
+    /// <param name="param"></param>
+    public void InstantiateObjectAsync(string path,OnAsyncObjFinish dealFinish,LoadResPriority priority,bool setSceneObject = false,bool bClear = true,params object[] param)
+    {
+        if (string.IsNullOrEmpty(path))
+        {
+            return;
+        }
+
+        uint crc = CRC32.GetCRC32(path);
+        ResourceObj resObj = GetObjFromPool(crc);
+        if (resObj != null)
+        {
+            if (setSceneObject)
+            {
+                resObj.m_CloneObj.transform.SetParent(SceneTrs, false);
+            }
+
+            if (dealFinish != null)
+            {
+                dealFinish(path, resObj.m_CloneObj, param);
+            }
+            return;
+        }
+
+        resObj = m_ResourceObjClassPool.Spawn(true);
+        resObj.m_Crc = crc;
+        resObj.m_SetSceneParent = setSceneObject;
+        resObj.m_bClear = bClear;
+        resObj.m_DealFinish = dealFinish;
+        resObj.m_Param = param;
+        //调用ResourceManager异步加载借口
+        ResourceManager.Instance.AsyncLoadResource(path, resObj, OnLoadResourceObjFinish, priority);
+    }
+
+    void OnLoadResourceObjFinish(string path,ResourceObj resObj,params object[] param)
+    {
+
+    }
+
+
+    /// <summary>
     /// 回收资源
     /// </summary>
     /// <param name="obj"></param>

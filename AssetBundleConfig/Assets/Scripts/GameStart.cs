@@ -63,7 +63,7 @@ public class GameStart : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.S))
         {
             long Time = System.DateTime.Now.Ticks;
-            clip = ResourceManager.Instance.LoadResource<AudioClip>("Assets/GameData/Sounds/senlin.mp3");
+            clip = ResourceManager.Instance.LoadResource<AudioClip>("Assets/GameData/Sounds/menusound.mp3");
             Debug.Log("预加载时间：" + (System.DateTime.Now.Ticks - Time));
             m_Audio.clip = clip;
             m_Audio.Play();
