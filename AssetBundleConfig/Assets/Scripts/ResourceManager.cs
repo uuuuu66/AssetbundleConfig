@@ -741,6 +741,16 @@ public class ResourceManager : Singleton<ResourceManager>
                 for (int j = 0; j < callBackList.Count; j++)
                 {
                     AsyncCallBack callBack = callBackList[j];
+
+                    if (callBack != null && callBack.m_DealFinish != null && callBack.m_ResObj != null)
+                    {
+                        ResourceObj tempResObj = callBack.m_ResObj;
+                        tempResObj.m_ResItem = item;
+                        callBack.m_DealFinish(loadingItem.m_Path, tempResObj, tempResObj.m_Param);
+                        callBack.m_DealFinish = null;
+                        tempResObj = null;
+                    }
+
                     if (callBack != null && callBack.m_DealObjFinish != null)
                     {
                         callBack.m_DealObjFinish(loadingItem.m_Path, obj,callBack.m_Param);

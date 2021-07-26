@@ -142,9 +142,46 @@ public class ObjectManager : Singleton<ObjectManager>
         ResourceManager.Instance.AsyncLoadResource(path, resObj, OnLoadResourceObjFinish, priority);
     }
 
+    /// <summary>
+    /// 资源加载完成回调
+    /// </summary>
+    /// <param name="path">路径</param>
+    /// <param name="resObj">中间类</param>
+    /// <param name="param">参数</param>
     void OnLoadResourceObjFinish(string path,ResourceObj resObj,params object[] param)
     {
+        if (resObj == null)
+        {
+            return;
+        }
 
+        if (resObj.m_ResItem.m_Obj == null)
+        {
+#if UNITY_EDITOR
+            Debug.LogError("异步资源加载的资源为空：" + path);
+#endif
+        }
+        else
+        {
+            resObj.m_CloneObj = GameObject.Instantiate(resObj.m_ResItem.m_Obj) as GameObject;
+        }
+
+        //
+        if (resObj.m_CloneObj != null && resObj.m_SetSceneParent)
+        {
+            resObj.m_CloneObj.transform.SetParent(SceneTrs, false);
+        }
+
+        if (resObj.m_DealFinish != null)
+        {
+            int tempID = resObj.m_CloneObj.GetInstanceID();
+            if (!m_ResourceObjDic.ContainsKey(tempID))
+            {
+                m_ResourceObjDic.Add(tempID, resObj);
+            }
+
+            resObj.m_DealFinish(path, resObj.m_CloneObj, resObj.m_Param);
+        }
     }
 
 
@@ -205,7 +242,7 @@ public class ObjectManager : Singleton<ObjectManager>
             {
                 if (recycleParent)
                 {
-                    resObj.m_CloneObj.transform.SetParent(SceneTrs);
+                    resObj.m_CloneObj.transform.SetParent(RecyclePoolTrs);
                 }
                 else
                 {

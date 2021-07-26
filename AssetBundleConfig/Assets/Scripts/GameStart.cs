@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameStart : MonoBehaviour
 {
-    private GameObject obj;
+    private GameObject m_obj;
 
     public AudioSource m_Audio;
     private AudioClip clip;
@@ -26,9 +26,17 @@ public class GameStart : MonoBehaviour
         //m_Audio.Play();
         //异步加载
         //ResourceManager.Instance.AsyncLoadResource("Assets/GameData/Sounds/menusound.mp3", OnLoadFinish,LoadResPriority.RES_MIDDLE);
-        obj = ObjectManager.Instance.InstantiateObject("Assets/GameData/Prefabs/Attack.prefab");
-
+        //同步obj加载
+        //obj = ObjectManager.Instance.InstantiateObject("Assets/GameData/Prefabs/Attack.prefab");
+        //异步Obj加载
+        ObjectManager.Instance.InstantiateObjectAsync("Assets/GameData/Prefabs/Attack.prefab", OnAsyncLoadFinish,LoadResPriority.RES_HIGHT,true);
     }
+
+    void OnAsyncLoadFinish(string path, Object obj, params object[] param)
+    {
+        m_obj = obj as GameObject;
+    }
+    
 
     void OnLoadFinish(string path,Object obj,params object[] param)
     {
@@ -75,22 +83,27 @@ public class GameStart : MonoBehaviour
             m_Audio.clip = null;
             clip = null;
         }
-        //对象同步加载
+       
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            ObjectManager.Instance.ReleaseObject(obj);
-            obj = null;
+            ObjectManager.Instance.ReleaseObject(m_obj);
+            m_obj = null;
         }
 
         if (Input.GetKeyDown(KeyCode.W))
         {
-            ObjectManager.Instance.ReleaseObject(obj,0,true);
-            obj = null;
+            ObjectManager.Instance.ReleaseObject(m_obj,0,true);
+            m_obj = null;
         }
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            obj = ObjectManager.Instance.InstantiateObject("Assets/GameData/Prefabs/Attack.prefab", true);
+            m_obj = ObjectManager.Instance.InstantiateObject("Assets/GameData/Prefabs/Attack.prefab", true);
+        }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            ObjectManager.Instance.InstantiateObjectAsync("Assets/GameData/Prefabs/Attack.prefab", OnAsyncLoadFinish, LoadResPriority.RES_HIGHT,true);
         }
     }
 
