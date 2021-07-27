@@ -96,6 +96,7 @@ public delegate void OnAsyncFinish(string path, ResourceObj resObj, params objec
 
 public class ResourceManager : Singleton<ResourceManager>
 {
+    protected long m_Guid = 0;
     public bool m_LoadFromAssetBundle = true;
     //缓存使用的资源列表
     public Dictionary<uint, ResourceItem> m_AssetDic { get; set; } = new Dictionary<uint, ResourceItem>();
@@ -127,6 +128,16 @@ public class ResourceManager : Singleton<ResourceManager>
     }
 
     /// <summary>
+    /// 创建唯一的GUID
+    /// </summary>
+    /// <returns></returns>
+    public long CreatGuid()
+    {
+        return m_Guid++;
+    }
+
+
+    /// <summary>
     /// 清空缓存，主要在跳场景的时候
     /// </summary>
     public void ClearCache()
@@ -147,6 +158,40 @@ public class ResourceManager : Singleton<ResourceManager>
 
         tempList.Clear();
 
+    }
+
+    /// <summary>
+    /// 取消异步加载资源
+    /// </summary>
+    /// <returns></returns>
+    public bool CancelLoad(ResourceObj res)
+    {
+        AsyncLoadResParam para = null;
+        if (m_LoadingAssetDic.TryGetValue(res.m_Crc, out para) && m_LoadingAssetList[(int)para.m_Priority].Contains(para))
+        {
+            for (int i = para.m_CallBackList.Count; i > 0; i--)
+            {
+                AsyncCallBack tempCallBack = para.m_CallBackList[i];
+                if (tempCallBack != null&&res==tempCallBack.m_ResObj)
+                {
+                    tempCallBack.Reset();
+                    m_AsyncCallBackPool.Recycle(tempCallBack);
+                    para.m_CallBackList.Remove(tempCallBack);
+                }
+            }
+
+            if (para.m_CallBackList.Count <= 0)
+            {
+                para.Reset();
+                m_LoadingAssetList[(int)para.m_Priority].Remove(para);
+                m_AsyncLoadResParamPool.Recycle(para);
+                m_LoadingAssetDic.Remove(res.m_Crc);
+                return true;
+            }
+
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -275,7 +320,7 @@ public class ResourceManager : Singleton<ResourceManager>
 
 
     /// <summary>
-    /// 同步加载资源，针对给ObjectManager借口
+    /// 同步加载资源，针对给ObjectManager的接口
     /// </summary>
     /// <param name="path"></param>
     /// <param name="resObj"></param>

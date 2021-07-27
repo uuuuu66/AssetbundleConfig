@@ -5,6 +5,7 @@ using System;
 
 public class ObjectManager : Singleton<ObjectManager>
 {
+
     //对象池节点
     public Transform RecyclePoolTrs;
     //场景节点
@@ -15,6 +16,10 @@ public class ObjectManager : Singleton<ObjectManager>
     protected Dictionary<int, ResourceObj> m_ResourceObjDic = new Dictionary<int, ResourceObj>();
     //ResourceObj类对象池
     protected ClassObjectPool<ResourceObj> m_ResourceObjClassPool = null;
+    //根据异步的guid储存ResourceObj，来判断是否正在异步加载
+    protected Dictionary<long, ResourceObj> m_AsyncResObjs = new Dictionary<long, ResourceObj>();
+
+
 
     /// <summary>
     /// 初始化
@@ -27,6 +32,46 @@ public class ObjectManager : Singleton<ObjectManager>
         RecyclePoolTrs = recycleTrs;
         SceneTrs = sceneTrs;
     }
+
+    /// <summary>
+    /// 清空对象池
+    /// </summary>
+    public void ClearCache()
+    {
+        List<uint> tempList = new List<uint>();
+        foreach (uint key in m_ObjectPoolDic.Keys)
+        {
+            List<ResourceObj> st = m_ObjectPoolDic[key];
+            for (int i = st.Count-1; i>=0 ; i++)
+            {
+                ResourceObj resObj = st[i];
+                if (!System.Object.ReferenceEquals(resObj.m_CloneObj, null)&&resObj.m_bClear)
+                {
+                    GameObject.Destroy(resObj.m_CloneObj);
+                    m_ResourceObjDic.Remove(resObj.m_CloneObj.GetInstanceID());
+                    resObj.Reset();
+                    m_ResourceObjClassPool.Recycle(resObj);
+                }
+            }
+
+            if (st.Count <= 0)
+            {
+                tempList.Add(key);
+            }
+        }
+
+        for (int i = 0; i < tempList.Count; i++)
+        {
+            uint temp = tempList[i];
+            if (m_ObjectPoolDic.ContainsKey(temp))
+            {
+                m_ObjectPoolDic.Remove(temp);
+            }
+        }
+
+        tempList.Clear();
+    }
+ 
     /// <summary>
     /// 从对象池取出obj
     /// </summary>
@@ -57,6 +102,66 @@ public class ObjectManager : Singleton<ObjectManager>
             return resObj;
         }
         return null;
+    }
+
+    /// <summary>
+    /// 取消异步加载
+    /// </summary>
+    /// <param name="guid"></param>
+    public void CancelLoad(long guid)
+    {
+        ResourceObj resObj = null;
+        if (m_AsyncResObjs.TryGetValue(guid, out resObj)&&ResourceManager.Instance.CancelLoad(resObj))
+        {
+            m_AsyncResObjs.Remove(guid);
+            resObj.Reset();
+            m_ResourceObjClassPool.Recycle(resObj);
+        }
+    }
+
+    /// <summary>
+    /// 是否正在异步加载
+    /// </summary>
+    /// <param name="guid"></param>
+    /// <returns></returns>
+    public bool IsingAsyncLoad(long guid)
+    {
+        return m_AsyncResObjs[guid] != null;
+    }
+
+    /// <summary>
+    /// 该对象是否是对象池创建的
+    /// </summary>
+    /// <returns></returns>
+    public bool IsObjectManagerCreat(GameObject obj)
+    {
+        ResourceObj resObj = m_ResourceObjDic[obj.GetInstanceID()];
+        return resObj == null ? false : true;
+    }
+
+    /// <summary>
+    /// 预加载Gameobject,就是加载完之后卸载
+    /// </summary>
+    /// <param name="path">路径</param>
+    /// <param name="count">预加载个数</param>
+    /// <param name="clear">跳场景是否清除 </param>
+    public void PreloadGameObject(string path, int count = 1, bool clear = false)
+    {
+        List<GameObject> tempGameObjectList = new List<GameObject>();
+        for (int i = 0; i < count; i++)
+        {
+            GameObject obj = InstantiateObject(path, false, bClear: clear);
+            tempGameObjectList.Add(obj);
+        }
+
+        for (int i = 0; i < count; i++)
+        {
+            GameObject obj = tempGameObjectList[i];
+            ReleaseObject(obj);
+            obj = null;
+        }
+
+        tempGameObjectList.Clear();
     }
 
     /// <summary>
@@ -109,11 +214,11 @@ public class ObjectManager : Singleton<ObjectManager>
     /// <param name="setSceneObject"></param>
     /// <param name="bClear"></param>
     /// <param name="param"></param>
-    public void InstantiateObjectAsync(string path,OnAsyncObjFinish dealFinish,LoadResPriority priority,bool setSceneObject = false,bool bClear = true,params object[] param)
+    public long InstantiateObjectAsync(string path,OnAsyncObjFinish dealFinish,LoadResPriority priority,bool setSceneObject = false,bool bClear = true,params object[] param)
     {
         if (string.IsNullOrEmpty(path))
         {
-            return;
+            return 0;
         }
 
         uint crc = CRC32.GetCRC32(path);
@@ -129,9 +234,10 @@ public class ObjectManager : Singleton<ObjectManager>
             {
                 dealFinish(path, resObj.m_CloneObj, param);
             }
-            return;
+            return resObj.m_GUID;
         }
 
+        long guid = ResourceManager.Instance.CreatGuid();
         resObj = m_ResourceObjClassPool.Spawn(true);
         resObj.m_Crc = crc;
         resObj.m_SetSceneParent = setSceneObject;
@@ -140,6 +246,7 @@ public class ObjectManager : Singleton<ObjectManager>
         resObj.m_Param = param;
         //调用ResourceManager异步加载借口
         ResourceManager.Instance.AsyncLoadResource(path, resObj, OnLoadResourceObjFinish, priority);
+        return guid;
     }
 
     /// <summary>
@@ -165,7 +272,11 @@ public class ObjectManager : Singleton<ObjectManager>
         {
             resObj.m_CloneObj = GameObject.Instantiate(resObj.m_ResItem.m_Obj) as GameObject;
         }
-
+        //加载完成就从正在加载的异步中移除
+        if (m_AsyncResObjs.ContainsKey(resObj.m_GUID))
+        {
+            m_AsyncResObjs.Remove(resObj.m_GUID);
+        }
         //
         if (resObj.m_CloneObj != null && resObj.m_SetSceneParent)
         {

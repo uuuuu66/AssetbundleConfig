@@ -30,6 +30,8 @@ public class GameStart : MonoBehaviour
         //obj = ObjectManager.Instance.InstantiateObject("Assets/GameData/Prefabs/Attack.prefab");
         //异步Obj加载
         ObjectManager.Instance.InstantiateObjectAsync("Assets/GameData/Prefabs/Attack.prefab", OnAsyncLoadFinish,LoadResPriority.RES_HIGHT,true);
+        //obj预加载
+        ObjectManager.Instance.PreloadGameObject("Assets/GameData/Prefabs/Attack.prefab", 20);
     }
 
     void OnAsyncLoadFinish(string path, Object obj, params object[] param)
