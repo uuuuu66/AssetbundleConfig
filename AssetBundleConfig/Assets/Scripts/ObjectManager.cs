@@ -71,6 +71,38 @@ public class ObjectManager : Singleton<ObjectManager>
 
         tempList.Clear();
     }
+
+    /// <summary>
+    /// 清除某个资源再对象池中所有的对象
+    /// </summary>
+    /// <param name="crc"></param>
+    public void ClearPoolObject(uint crc)
+    {
+        List<ResourceObj> st = null;
+        if (!m_ObjectPoolDic.TryGetValue(crc, out st)||st==null)
+        {
+            return;
+        }
+
+        for (int i = st.Count - 1; i >=0 ; i--)
+        {
+            ResourceObj resObj = st[i];
+            if (resObj.m_bClear)
+            {
+                st.Remove(resObj);
+                int tempID = resObj.m_CloneObj.GetInstanceID();
+                GameObject.Destroy(resObj.m_CloneObj);
+                resObj.Reset();
+                m_ResourceObjDic.Remove(tempID);
+                m_ResourceObjClassPool.Recycle(resObj);
+            }
+        }
+
+        if (st.Count <= 0)
+        {
+            m_ObjectPoolDic.Remove(crc);
+        }
+    }
  
     /// <summary>
     /// 从对象池取出obj
