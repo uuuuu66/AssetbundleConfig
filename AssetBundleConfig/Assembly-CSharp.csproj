@@ -67,6 +67,9 @@
     <Compile Include="Assets\Scripts\Datas\AssetBunldeConfig.cs" />
     <Compile Include="Assets\Scripts\GameStart.cs" />
     <Compile Include="Assets\Scripts\ObjectManager.cs" />
+    <Compile Include="Assets\Scripts\OfflineData\EffectOfflineData.cs" />
+    <Compile Include="Assets\Scripts\OfflineData\OfflineData.cs" />
+    <Compile Include="Assets\Scripts\OfflineData\UIOfflineData.cs" />
     <Compile Include="Assets\Scripts\ResourceManager.cs" />
     <Compile Include="Assets\Scripts\ResourceTest.cs" />
     <Compile Include="Assets\Scripts\Singleton.cs" />
