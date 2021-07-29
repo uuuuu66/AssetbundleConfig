@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="Assets\Editor\ABConfig.cs" />
     <Compile Include="Assets\Editor\BundleEditor.cs" />
+    <Compile Include="Assets\Editor\OfflineDataEditor.cs" />
     <Reference Include="UnityEngine">
       <HintPath>D:/Unity/2019.4.27f1c1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>

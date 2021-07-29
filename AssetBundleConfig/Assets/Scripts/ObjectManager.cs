@@ -103,6 +103,23 @@ public class ObjectManager : Singleton<ObjectManager>
             m_ObjectPoolDic.Remove(crc);
         }
     }
+
+    /// <summary>
+    /// 获取离线数据
+    /// </summary>
+    /// <returns>Gameobject</returns>
+    public OfflineData FindOfflineData(GameObject obj)
+    {
+        OfflineData data = null;
+        ResourceObj resObj = null;
+        m_ResourceObjDic.TryGetValue(obj.GetInstanceID(), out resObj);
+        if (resObj != null)
+        {
+            data = resObj.m_OfflineData;
+        }
+
+        return data;
+    }
  
     /// <summary>
     /// 从对象池取出obj
@@ -122,6 +139,10 @@ public class ObjectManager : Singleton<ObjectManager>
             //判空比==效率高
             if (!System.Object.ReferenceEquals(obj, null))
             {
+                if (!System.Object.ReferenceEquals(resObj.m_OfflineData, null))
+                {
+                    resObj.m_OfflineData.ResetProp();
+                }
                 resObj.m_Already = false;
 
 #if UNITY_EDITOR
@@ -219,7 +240,7 @@ public class ObjectManager : Singleton<ObjectManager>
             if (resourceObj.m_ResItem.m_Obj != null)
             {
                 resourceObj.m_CloneObj = GameObject.Instantiate(resourceObj.m_ResItem.m_Obj) as GameObject;
-
+                resourceObj.m_OfflineData = resourceObj.m_CloneObj.GetComponent<OfflineData>();
             }
         }
         //是否要把它放到场景下面
@@ -303,6 +324,7 @@ public class ObjectManager : Singleton<ObjectManager>
         else
         {
             resObj.m_CloneObj = GameObject.Instantiate(resObj.m_ResItem.m_Obj) as GameObject;
+            resObj.m_OfflineData = resObj.m_CloneObj.GetComponent<OfflineData>();
         }
         //加载完成就从正在加载的异步中移除
         if (m_AsyncResObjs.ContainsKey(resObj.m_GUID))
