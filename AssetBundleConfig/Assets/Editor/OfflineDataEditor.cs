@@ -52,7 +52,7 @@ public class OfflineDataEditor
     }
 
     [MenuItem("离线数据/生成所有UI prefab离线数据")]
-    public static void AllCreatUIData()
+    public static void AllCreateUIData()
     {
         //获取文件夹下所有prefab
         string[] allStr = AssetDatabase.FindAssets("t:prefab",new string[] { "Assets/GameData/prefabs/UGUI" });
@@ -89,5 +89,56 @@ public class OfflineDataEditor
         Resources.UnloadUnusedAssets();
         //刷新编译器
         AssetDatabase.Refresh();
+    }
+
+    public static void CreateEffectData(GameObject obj)
+    {
+        EffectOfflineData effectData = obj.GetComponent<EffectOfflineData>();
+        if (effectData == null)
+        {
+            effectData = obj.AddComponent<EffectOfflineData>();
+        }
+        effectData.BindData();
+        EditorUtility.SetDirty(obj);
+        Debug.Log("修改了" + obj.name + " 特效 prefab!");
+        //防止编译器内存一直增加
+        Resources.UnloadUnusedAssets();
+        //刷新编译器
+        AssetDatabase.Refresh();
+    }
+
+    [MenuItem("Assets/生成特效离线数据")]
+    public static void AssetCreateEffectOfflineData()
+    {
+        GameObject[] objects = Selection.gameObjects;
+        for (int i = 0; i < objects.Length; i++)
+        {
+            EditorUtility.DisplayProgressBar("添加特效离线数据", "正在修改：" + objects[i] + "......", 1.0f / objects.Length * i);
+            CreateEffectData(objects[i]);
+        }
+
+        EditorUtility.ClearProgressBar();
+    }
+
+    [MenuItem("离线数据/生成所有特效prefab离线数据")]
+    public static void AllCreateEffectData()
+    {
+        //获取文件夹下所有prefab
+        string[] allStr = AssetDatabase.FindAssets("t:prefab", new string[] { "Assets/GameData/prefabs/Effect" });
+        for (int i = 0; i < allStr.Length; i++)
+        {
+            //拿到所有的prefab路径的guid转成路径
+            string prefabPath = AssetDatabase.GUIDToAssetPath(allStr[i]);
+            EditorUtility.DisplayProgressBar("添加特效离线数据", "正在扫描路径：" + prefabPath + "......", 1.0f / allStr.Length * i);
+            GameObject obj = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (obj == null)
+            {
+                continue;
+            }
+
+            CreateEffectData(obj);
+        }
+        Debug.Log("特效离线数据全部生成完毕！");
+        EditorUtility.ClearProgressBar();
     }
 }
