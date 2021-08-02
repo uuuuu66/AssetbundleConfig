@@ -76,8 +76,10 @@
     <Compile Include="Assets\Scripts\Tools\CRC32.cs" />
     <Compile Include="Assets\Scripts\Tools\ClassObjectPool.cs" />
     <Compile Include="Assets\Scripts\UGUI\BaseItem.cs" />
+    <Compile Include="Assets\Scripts\UGUI\Panel\MenuPanel.cs" />
     <Compile Include="Assets\Scripts\UGUI\UIManager.cs" />
     <Compile Include="Assets\Scripts\UGUI\Window.cs" />
+    <Compile Include="Assets\Scripts\UGUI\Window\MenuUi.cs" />
     <None Include="Assets\GameData\Shaders\Xray.shader" />
     <None Include="Assets\GameData\Shaders\Water.shader" />
     <None Include="Assets\AssetbundleConfig.xml" />

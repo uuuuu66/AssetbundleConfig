@@ -87,7 +87,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1275586119262994146}
-  m_Layer: 0
+  - component: {fileID: 5120898658006088893}
+  - component: {fileID: 4355067384841399209}
+  m_Layer: 5
   m_Name: MenuPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -114,6 +116,119 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &5120898658006088893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2942453527086779633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9117dba4a7f80c5489acdd035c230384, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_StartButton: {fileID: 4168105208829619906}
+  m_LoadButton: {fileID: 7862878653629157878}
+  m_ExitButton: {fileID: 4822149172041052943}
+--- !u!114 &4355067384841399209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2942453527086779633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8520c4d32c8017b4880c1358e0eac9ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Rigibody: {fileID: 0}
+  m_Collider: {fileID: 0}
+  m_AllPoint:
+  - {fileID: 1275586119262994146}
+  - {fileID: 6173908228940178795}
+  - {fileID: 1849049495128506248}
+  - {fileID: 2471279972977779263}
+  - {fileID: 689197410830455611}
+  - {fileID: 1696243266241673637}
+  - {fileID: 6118564198611718335}
+  - {fileID: 5030101643740015222}
+  m_AllPointChildCount: 0100000003000000010000000000000001000000000000000100000000000000
+  m_AllPointActive: 0101010101010101
+  m_Pos:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: -114, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: -207, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: -299, z: 0}
+  - {x: 0, y: 0, z: 0}
+  m_Scale:
+  - {x: 1, y: 1, z: 1}
+  - {x: 1, y: 1, z: 1}
+  - {x: 1, y: 1, z: 1}
+  - {x: 1, y: 1, z: 1}
+  - {x: 1, y: 1, z: 1}
+  - {x: 1, y: 1, z: 1}
+  - {x: 1, y: 1, z: 1}
+  - {x: 1, y: 1, z: 1}
+  m_Rot:
+  - {x: 0, y: 0, z: 0, w: 1}
+  - {x: 0, y: 0, z: 0, w: 1}
+  - {x: 0, y: 0, z: 0, w: 1}
+  - {x: -0, y: -0, z: -0, w: 1}
+  - {x: 0, y: 0, z: 0, w: 1}
+  - {x: -0, y: -0, z: -0, w: 1}
+  - {x: 0, y: 0, z: 0, w: 1}
+  - {x: -0, y: -0, z: -0, w: 1}
+  m_AnchorMax:
+  - {x: 1, y: 1}
+  - {x: 1, y: 1}
+  - {x: 0.5, y: 0.5}
+  - {x: 1, y: 1}
+  - {x: 0.5, y: 0.5}
+  - {x: 1, y: 1}
+  - {x: 0.5, y: 0.5}
+  - {x: 1, y: 1}
+  m_AnchorMin:
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0.5, y: 0.5}
+  - {x: 0, y: 0}
+  - {x: 0.5, y: 0.5}
+  - {x: 0, y: 0}
+  - {x: 0.5, y: 0.5}
+  - {x: 0, y: 0}
+  m_Pivot:
+  - {x: 0.5, y: 0.5}
+  - {x: 0.5, y: 0.5}
+  - {x: 0.5, y: 0.5}
+  - {x: 0.5, y: 0.5}
+  - {x: 0.5, y: 0.5}
+  - {x: 0.5, y: 0.5}
+  - {x: 0.5, y: 0.5}
+  - {x: 0.5, y: 0.5}
+  m_SizeDelta:
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 250, y: 60}
+  - {x: 0, y: 0}
+  - {x: 250, y: 60}
+  - {x: 0, y: 0}
+  - {x: 250, y: 60}
+  - {x: 0, y: 0}
+  m_AnchoredPos:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: -114, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: -207, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: -299, z: 0}
+  - {x: 0, y: 0, z: 0}
+  m_Particle: []
 --- !u!1 &3047019903476599817
 GameObject:
   m_ObjectHideFlags: 0

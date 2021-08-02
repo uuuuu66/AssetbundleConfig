@@ -100,7 +100,7 @@ public delegate void OnAsyncFinish(string path, ResourceObj resObj, params objec
 public class ResourceManager : Singleton<ResourceManager>
 {
     protected long m_Guid = 0;
-    public bool m_LoadFromAssetBundle = true;
+    public bool m_LoadFromAssetBundle = false;
     //缓存使用的资源列表
     public Dictionary<uint, ResourceItem> m_AssetDic { get; set; } = new Dictionary<uint, ResourceItem>();
     //缓存引用计数为0的资源列表，达到缓存最大的时候，释放这个列表里面最早没用的资源
@@ -350,12 +350,17 @@ public class ResourceManager : Singleton<ResourceManager>
         if (!m_LoadFromAssetBundle)
         {
             item = AssetBundleManager.Instance.FindResourceItem(crc);
-            if (item.m_Obj != null)
+            if (item !=null && item.m_Obj != null)
             {
                 obj = item.m_Obj as Object;
             }
             else
             {
+                if (item == null)
+                {
+                    item = new ResourceItem();
+                    item.m_Crc = crc;
+                }
                 obj = LoadAssetByEditor<Object>(path);
             }
         }

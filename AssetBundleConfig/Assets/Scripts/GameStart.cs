@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class GameStart : MonoBehaviour
 {
@@ -29,9 +30,19 @@ public class GameStart : MonoBehaviour
         //同步obj加载
         //obj = ObjectManager.Instance.InstantiateObject("Assets/GameData/Prefabs/Attack.prefab");
         //异步Obj加载
-        ObjectManager.Instance.InstantiateObjectAsync("Assets/GameData/Prefabs/Attack.prefab", OnAsyncLoadFinish,LoadResPriority.RES_HIGHT,true);
+        //ObjectManager.Instance.InstantiateObjectAsync("Assets/GameData/Prefabs/Attack.prefab", OnAsyncLoadFinish,LoadResPriority.RES_HIGHT,true);
         //obj预加载
-        ObjectManager.Instance.PreloadGameObject("Assets/GameData/Prefabs/Attack.prefab", 20);
+        //ObjectManager.Instance.PreloadGameObject("Assets/GameData/Prefabs/Attack.prefab", 20);
+
+        UIManager.Instance.Init(transform.Find("UIRoot") as RectTransform, transform.Find("UIRoot/WindowRoot") as RectTransform,transform.Find("UIRoot/UICamera").GetComponent<Camera>(),transform.Find("UIRoot/EventSystem").GetComponent<EventSystem>());
+        RegisterUI();
+
+        UIManager.Instance.PopUpWindow("MenuPanel.prefab");
+    }
+
+    void RegisterUI()
+    {
+        UIManager.Instance.Register<MenuUi>("MenuPanel.prefab");
     }
 
     void OnAsyncLoadFinish(string path, Object obj, params object[] param)

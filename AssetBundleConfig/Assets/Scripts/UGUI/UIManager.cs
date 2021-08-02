@@ -22,7 +22,7 @@ public class UIManager : Singleton<UIManager>
     //屏幕的宽高比
     private float m_CanvasRate = 0;
 
-    private const string UIPrefabPath = "Asset/GameData/prefabs/UGUI/Panel/";
+    private const string UIPrefabPath = "Assets/GameData/Prefabs/UGUI/Panel/";
     //注册的字典
     private Dictionary<string, System.Type> m_RegisterDic = new Dictionary<string, System.Type>();
     //所有打开窗口
