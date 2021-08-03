@@ -128,32 +128,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 396334940, guid: 65c9a56c3ad842e4ebc0b9d1df1ed40c, type: 3}
-      propertyPath: m_Layer
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1139207372, guid: 65c9a56c3ad842e4ebc0b9d1df1ed40c, type: 3}
-      propertyPath: m_Layer
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1139207373, guid: 65c9a56c3ad842e4ebc0b9d1df1ed40c, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -100
-      objectReference: {fileID: 0}
-    - target: {fileID: 1139207375, guid: 65c9a56c3ad842e4ebc0b9d1df1ed40c, type: 3}
-      propertyPath: m_CullingMask.m_Bits
-      value: 32
-      objectReference: {fileID: 0}
-    - target: {fileID: 483547993970140818, guid: 65c9a56c3ad842e4ebc0b9d1df1ed40c,
-        type: 3}
-      propertyPath: m_Layer
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3362379904018074955, guid: 65c9a56c3ad842e4ebc0b9d1df1ed40c,
-        type: 3}
-      propertyPath: m_Layer
-      value: 5
-      objectReference: {fileID: 0}
     - target: {fileID: 9154718613475112770, guid: 65c9a56c3ad842e4ebc0b9d1df1ed40c,
         type: 3}
       propertyPath: m_Name

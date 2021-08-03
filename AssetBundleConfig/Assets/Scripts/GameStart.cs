@@ -37,6 +37,8 @@ public class GameStart : MonoBehaviour
         UIManager.Instance.Init(transform.Find("UIRoot") as RectTransform, transform.Find("UIRoot/WindowRoot") as RectTransform,transform.Find("UIRoot/UICamera").GetComponent<Camera>(),transform.Find("UIRoot/EventSystem").GetComponent<EventSystem>());
         RegisterUI();
 
+        GameMapManager.Instance.Init(this);
+
         UIManager.Instance.PopUpWindow("MenuPanel.prefab");
     }
 

@@ -694,7 +694,7 @@ public class ResourceManager : Singleton<ResourceManager>
     }
 
     /// <summary>
-    /// 针对Objectmanager的异步加载接口
+    /// 异步加载针对Objectmanager的异步加载接口
     /// </summary>
     /// <param name="path"></param>
     /// <param name="resObj"></param>
@@ -766,6 +766,11 @@ public class ResourceManager : Singleton<ResourceManager>
                     //模拟异步加载
                     yield return new WaitForSeconds(0.5f);
                     item = AssetBundleManager.Instance.FindResourceItem(loadingItem.m_Crc);
+                    if (item == null)
+                    {
+                        item = new ResourceItem();
+                        item.m_Crc = loadingItem.m_Crc;
+        }
                 }
 #endif
                 if (obj == null)
