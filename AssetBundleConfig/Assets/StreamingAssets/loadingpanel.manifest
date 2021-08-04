@@ -1,0 +1,43 @@
+ManifestFileVersion: 0
+CRC: 1022642677
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 852600439548272d476626efeba288c7
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 3663d588317eff2df653b578c6abc832
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: bfc7db71b642f1e47ba4c3156f8ead4d, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 8520c4d32c8017b4880c1358e0eac9ac, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 128
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/GameData/Prefabs/UGUI/Panel/LoadingPanel.prefab
+Dependencies: []

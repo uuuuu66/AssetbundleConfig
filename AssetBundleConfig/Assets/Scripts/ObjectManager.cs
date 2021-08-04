@@ -42,7 +42,7 @@ public class ObjectManager : Singleton<ObjectManager>
         foreach (uint key in m_ObjectPoolDic.Keys)
         {
             List<ResourceObj> st = m_ObjectPoolDic[key];
-            for (int i = st.Count-1; i>=0 ; i++)
+            for (int i = st.Count-1; i>=0 ; i--)
             {
                 ResourceObj resObj = st[i];
                 if (!System.Object.ReferenceEquals(resObj.m_CloneObj, null)&&resObj.m_bClear)
@@ -51,6 +51,7 @@ public class ObjectManager : Singleton<ObjectManager>
                     m_ResourceObjDic.Remove(resObj.m_CloneObj.GetInstanceID());
                     resObj.Reset();
                     m_ResourceObjClassPool.Recycle(resObj);
+                    st.Remove(resObj);
                 }
             }
 

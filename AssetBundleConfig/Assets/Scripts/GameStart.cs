@@ -15,6 +15,7 @@ public class GameStart : MonoBehaviour
         AssetBundleManager.Instance.LoadAssetBundleConfig();
         ResourceManager.Instance.Init(this);
         ObjectManager.Instance.Init(transform.Find("RecyclePoolTrs"), transform.Find("SceneTrs"));
+        
     }
     // Start is called before the first frame update
     void Start()
@@ -34,17 +35,33 @@ public class GameStart : MonoBehaviour
         //obj预加载
         //ObjectManager.Instance.PreloadGameObject("Assets/GameData/Prefabs/Attack.prefab", 20);
 
+        #region 跳场景增加UI
         UIManager.Instance.Init(transform.Find("UIRoot") as RectTransform, transform.Find("UIRoot/WindowRoot") as RectTransform,transform.Find("UIRoot/UICamera").GetComponent<Camera>(),transform.Find("UIRoot/EventSystem").GetComponent<EventSystem>());
         RegisterUI();
 
         GameMapManager.Instance.Init(this);
+        //obj预加载
+        ObjectManager.Instance.PreloadGameObject(ConstString.AttackPrefab, 100);
+        //资源预加载
+        ResourceManager.Instance.PreloadRes(ConstString.MenuSound);
 
-        UIManager.Instance.PopUpWindow("MenuPanel.prefab");
+        //obj加载跳场景
+        //GameObject obj = ObjectManager.Instance.InstantiateObject(ConstString.AttackPrefab, true,bClear:false);
+        //ObjectManager.Instance.ReleaseObject(obj);
+        //obj = null;
+
+
+        GameMapManager.Instance.LoadScene(ConstString.MenuScene);
+        #endregion
     }
 
+    /// <summary>
+    /// 注册UI
+    /// </summary>
     void RegisterUI()
     {
-        UIManager.Instance.Register<MenuUi>("MenuPanel.prefab");
+        UIManager.Instance.Register<MenuUi>(ConstString.MenuPanel);
+        UIManager.Instance.Register<LoadingUI>(ConstString.LoadingPanel);
     }
 
     void OnAsyncLoadFinish(string path, Object obj, params object[] param)
@@ -65,6 +82,7 @@ public class GameStart : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         //同步卸载
         //if (Input.GetKeyDown(KeyCode.A))
         //{
@@ -120,6 +138,8 @@ public class GameStart : MonoBehaviour
         {
             ObjectManager.Instance.InstantiateObjectAsync("Assets/GameData/Prefabs/Attack.prefab", OnAsyncLoadFinish, LoadResPriority.RES_HIGHT,true);
         }
+
+        UIManager.Instance.OnUpdate();
     }
 
     private void OnApplicationQuit()

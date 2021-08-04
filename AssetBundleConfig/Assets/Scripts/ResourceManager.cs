@@ -100,7 +100,7 @@ public delegate void OnAsyncFinish(string path, ResourceObj resObj, params objec
 public class ResourceManager : Singleton<ResourceManager>
 {
     protected long m_Guid = 0;
-    public bool m_LoadFromAssetBundle = false;
+    public bool m_LoadFromAssetBundle = true;
     //缓存使用的资源列表
     public Dictionary<uint, ResourceItem> m_AssetDic { get; set; } = new Dictionary<uint, ResourceItem>();
     //缓存引用计数为0的资源列表，达到缓存最大的时候，释放这个列表里面最早没用的资源
@@ -594,6 +594,7 @@ public class ResourceManager : Singleton<ResourceManager>
     {
         if (item == null || item.RefCount > 0)
         {
+            Debug.Log("资源正在使用，或者资源已经为空");
             return;
         }
 
