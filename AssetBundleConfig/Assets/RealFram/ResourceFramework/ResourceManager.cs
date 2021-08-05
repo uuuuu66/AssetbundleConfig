@@ -100,7 +100,7 @@ public delegate void OnAsyncFinish(string path, ResourceObj resObj, params objec
 public class ResourceManager : Singleton<ResourceManager>
 {
     protected long m_Guid = 0;
-    public bool m_LoadFromAssetBundle = true;
+    public bool m_LoadFromAssetBundle = false;
     //缓存使用的资源列表
     public Dictionary<uint, ResourceItem> m_AssetDic { get; set; } = new Dictionary<uint, ResourceItem>();
     //缓存引用计数为0的资源列表，达到缓存最大的时候，释放这个列表里面最早没用的资源
@@ -118,6 +118,8 @@ public class ResourceManager : Singleton<ResourceManager>
 
     //最长连续卡着加载的时间，单位微秒
     private const long MAXLOADRESTIME = 200000;
+    //最大缓存个数
+    private const int MAXCACHECOUNT = 500;
 
     public void Init(MonoBehaviour mono)
     {
@@ -541,7 +543,7 @@ public class ResourceManager : Singleton<ResourceManager>
     /// <param name="addrefcount"></param>
     void CacheResource(string path, ref ResourceItem item, uint crc, Object obj, int addrefcount = 1)
     {
-        //缓存太多，清楚最早没有使用的资源
+        //缓存太多，清除最早没有使用的资源
         WashOut();
 
         if (item == null)
@@ -573,7 +575,17 @@ public class ResourceManager : Singleton<ResourceManager>
     /// </summary>
     protected void WashOut()
     {
-        //当当前内存使用大于80%进行清除最早没用的资源
+        //当大于缓存个数时，进行一半释放
+        //如果用内存大小来做的话，可以做保护，记录缓存时间，过一定时间后再执行防止进入死循环更卡
+        while (m_NoRefrenceAssetMapList.Size() >= MAXCACHECOUNT)
+        {
+            for (int i = 0; i < MAXCACHECOUNT/2; i++)
+            {
+                ResourceItem item = m_NoRefrenceAssetMapList.Back();
+                DestroyResourceItem(item, true);
+            }
+        }
+
         //{
         //    if (m_NoRefrenceAssetMapList.Size() <= 0)
         //    {
@@ -610,6 +622,9 @@ public class ResourceManager : Singleton<ResourceManager>
         {
             return;
         }
+
+        m_NoRefrenceAssetMapList.Remove(item);
+
 
         //释放assetbundle引用
         AssetBundleManager.Instance.ReleaseAsset(item);

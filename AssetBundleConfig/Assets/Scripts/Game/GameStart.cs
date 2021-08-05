@@ -41,10 +41,11 @@ public class GameStart : MonoBehaviour
 
         GameMapManager.Instance.Init(this);
         //obj预加载
-        ObjectManager.Instance.PreloadGameObject(ConstString.AttackPrefab, 100);
+        ObjectManager.Instance.PreloadGameObject(ConstString.AttackPrefab, 5);
         //资源预加载
-        ResourceManager.Instance.PreloadRes(ConstString.MenuSound);
-
+        //ResourceManager.Instance.PreloadRes(ConstString.MenuSound);
+        AudioClip clip = ResourceManager.Instance.LoadResource<AudioClip>(ConstString.MenuSound);
+        ResourceManager.Instance.ReleaseResourece(clip);
         //obj加载跳场景
         //GameObject obj = ObjectManager.Instance.InstantiateObject(ConstString.AttackPrefab, true,bClear:false);
         //ObjectManager.Instance.ReleaseObject(obj);
