@@ -34,7 +34,7 @@ public class GameStart : MonoBehaviour
         //ObjectManager.Instance.InstantiateObjectAsync("Assets/GameData/Prefabs/Attack.prefab", OnAsyncLoadFinish,LoadResPriority.RES_HIGHT,true);
         //obj预加载
         //ObjectManager.Instance.PreloadGameObject("Assets/GameData/Prefabs/Attack.prefab", 20);
-
+        ObjectManager.Instance.InstantiateObject("Assets/GameData/Prefabs/Test1.prefab");
         #region 跳场景增加UI
         UIManager.Instance.Init(transform.Find("UIRoot") as RectTransform, transform.Find("UIRoot/WindowRoot") as RectTransform,transform.Find("UIRoot/UICamera").GetComponent<Camera>(),transform.Find("UIRoot/EventSystem").GetComponent<EventSystem>());
         RegisterUI();

@@ -9,8 +9,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class BundleEditor
 {
     private static string m_BundleTargetPath = Application.streamingAssetsPath;
-    private static string AB_CONFIG_PATH = "Assets/Editor/ABConfig.asset";
-
+    private static string AB_CONFIG_PATH = "Assets/RealFram.Editor/Editor/Resource/ABConfig.asset";
+    private static string AB_BYTE_PATH = "Assets/Data/ABData/AssetBundleConfig.bytes";
     //key AB包名，value 路径，所有文件夹ab包的字典
     private static Dictionary<string, string> m_AllFileDir = new Dictionary<string, string>();
     //过滤AB包
@@ -219,16 +219,21 @@ public class BundleEditor
         xs.Serialize(sw, config);
         sw.Close();
         fs.Close();
+
         //写入二进制
         foreach (ABBase abBase in config.ABList)
         {
             abBase.Path = "";
         }
-        string bytePath = "Assets/Data/ABData/AssetBundleConfig.bytes";
-        FileStream fsb = new FileStream(bytePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+        FileStream fsb = new FileStream(AB_BYTE_PATH, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+        fsb.Seek(0, SeekOrigin.Begin);
+        fsb.SetLength(0);
         BinaryFormatter bf = new BinaryFormatter();
         bf.Serialize(fsb, config);
         fsb.Close();
+        AssetDatabase.Refresh();
+        SetABName("assetbundleconfig", AB_BYTE_PATH);
+        
     }
 
     /// <summary>
@@ -241,7 +246,7 @@ public class BundleEditor
         FileInfo[] files = direction.GetFiles("*", SearchOption.AllDirectories);
         for (int i = 0; i < files.Length; i++)
         {
-            if (ConatinABName(files[i].Name, allBundlesName) || files[i].Name.EndsWith(".meta"))
+            if (ConatinABName(files[i].Name, allBundlesName) || files[i].Name.EndsWith(".meta")|| files[i].Name.EndsWith(".manifest")|| files[i].Name.EndsWith("assetbundleconfig"))
             {
                 continue;
             }

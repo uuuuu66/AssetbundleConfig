@@ -62,9 +62,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\RealFram .Editor\Editor\Resource\ABConfig.cs" />
-    <Compile Include="Assets\RealFram .Editor\Editor\Resource\BundleEditor.cs" />
-    <Compile Include="Assets\RealFram .Editor\Editor\Resource\OfflineDataEditor.cs" />
+    <Compile Include="Assets\RealFram.Editor\Editor\Resource\ABConfig.cs" />
+    <Compile Include="Assets\RealFram.Editor\Editor\Resource\BundleEditor.cs" />
+    <Compile Include="Assets\RealFram.Editor\Editor\Resource\OfflineDataEditor.cs" />
     <Reference Include="UnityEngine">
       <HintPath>D:/Unity/2019.4.27f1c1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
