@@ -110,7 +110,7 @@ public class Window
             return;
         }
 
-        ResourceManager.Instance.AsyncLoadResource(path, OnLoadSpriteComplete, LoadResPriority.RES_MIDDLE,0, image, setNativeSize);
+        ResourceManager.Instance.AsyncLoadResource(path, OnLoadSpriteComplete, LoadResPriority.RES_MIDDLE,true,0, image, setNativeSize);
     }
 
     /// <summary>

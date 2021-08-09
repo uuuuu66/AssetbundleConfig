@@ -671,7 +671,7 @@ public class ResourceManager : Singleton<ResourceManager>
     /// <summary>
     /// 异步加载资源(仅仅是不需要实例化的资源，例如音频，图片等）
     /// </summary>
-    public void AsyncLoadResource(string path,OnAsyncObjFinish dealFinish,LoadResPriority priority,uint crc = 0, params object[] param)
+    public void AsyncLoadResource(string path,OnAsyncObjFinish dealFinish,LoadResPriority priority,bool isSprite = false,uint crc = 0, params object[] param)
     {
         if (crc == 0)
         {
@@ -695,6 +695,7 @@ public class ResourceManager : Singleton<ResourceManager>
             para = m_AsyncLoadResParamPool.Spawn(true);
             para.m_Crc = crc;
             para.m_Path = path;
+            para.m_Sprite = isSprite;
             para.m_Priority = priority;
             m_LoadingAssetDic.Add(crc, para);
             //异步队列
@@ -778,7 +779,15 @@ public class ResourceManager : Singleton<ResourceManager>
 #if UNITY_EDITOR
                 if (!m_LoadFromAssetBundle)
                 {
-                    obj = LoadAssetByEditor<Object>(loadingItem.m_Path);
+                    if (loadingItem.m_Sprite)
+                    {
+                        obj = LoadAssetByEditor<Sprite>(loadingItem.m_Path);
+                    }
+                    else
+                    {
+                        obj = LoadAssetByEditor<Object>(loadingItem.m_Path);
+                    }
+                    
                     //模拟异步加载
                     yield return new WaitForSeconds(0.5f);
                     item = AssetBundleManager.Instance.FindResourceItem(loadingItem.m_Crc);
