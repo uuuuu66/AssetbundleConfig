@@ -765,6 +765,14 @@ public class ResourceManager : Singleton<ResourceManager>
 
             for (int i = 0; i <(int) LoadResPriority.RES_NUM; i++)
             {
+                if (m_LoadingAssetList[(int)LoadResPriority.RES_HIGHT].Count > 0)
+                {
+                    i = (int)LoadResPriority.RES_HIGHT;
+                }
+                else if (m_LoadingAssetList[(int)LoadResPriority.RES_MIDDLE].Count > 0)
+                {
+                    i = (int)LoadResPriority.RES_MIDDLE;
+                }
                 List<AsyncLoadResParam> loadingList = m_LoadingAssetList[i];
                 if (loadingList.Count <= 0)
                 {
