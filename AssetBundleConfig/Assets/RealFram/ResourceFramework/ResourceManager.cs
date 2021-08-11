@@ -418,11 +418,11 @@ public class ResourceManager : Singleton<ResourceManager>
             item = AssetBundleManager.Instance.FindResourceItem(crc);
             if (item.m_Obj != null)
             {
-                obj = item.m_Obj as T;
+                obj = (T)item.m_Obj;
             }
             else
             {
-                obj = LoadAssetByEditor<T>(path);
+                obj = item.m_AssetBundle.LoadAsset<T>(item.m_AssetName);
             }
            
         }
